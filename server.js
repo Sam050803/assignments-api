@@ -43,17 +43,27 @@ let port = process.env.PORT || 8010;
 // les routes
 const prefix = '/api';
 
-app.route(prefix + '/assignments')
-  .get(assignment.getAssignments);
+// IMPORTANT: Les routes spécifiques doivent être définies AVANT les routes avec paramètres
+// Sinon Express va interpréter "stats" ou "en-retard" comme des IDs
 
+// Route pour les statistiques (AVANT /:id)
+app.route(prefix + '/assignments/stats')
+  .get(assignment.getStats);
+
+// Route pour les assignments en retard (AVANT /:id)
+app.route(prefix + '/assignments/en-retard')
+  .get(assignment.getAssignmentsEnRetard);
+
+// Route principale pour les assignments
+app.route(prefix + '/assignments')
+  .get(assignment.getAssignments)
+  .post(assignment.postAssignment)
+  .put(assignment.updateAssignment);
+
+// Route avec paramètre ID (doit être APRÈS les routes spécifiques)
 app.route(prefix + '/assignments/:id')
   .get(assignment.getAssignment)
   .delete(assignment.deleteAssignment);
-
-
-app.route(prefix + '/assignments')
-  .post(assignment.postAssignment)
-  .put(assignment.updateAssignment);
 
 // On démarre le serveur
 app.listen(port, "0.0.0.0");
